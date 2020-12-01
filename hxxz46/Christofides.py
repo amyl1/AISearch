@@ -273,29 +273,7 @@ added_note = ""
 ############
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
-"""
-def check_reached(reached,check_node):
-    for i in range(0,len(reached)):
-        if check_node==reached[i][0]:
-            return False
-    return True
 
-def min_spanning(matrix,starting_node=0):
-    #node id, parent
-    reached=[[0,-1]]
-    while len(reached)<num_cities:
-        min_cost=100000
-        min_vert=-1
-        for i in range (0,len(reached)):
-            current_node=reached[i]
-            for j in range (0,len(dist_matrix[current_node[0]])):
-                curr_cost=dist_matrix[current_node[0]][j]
-                if curr_cost<min_cost and check_reached(reached,j):
-                    min_cost=curr_cost
-                    min_vert=j
-                    parent=current_node
-        reached.append([min_vert,parent[0]])
-    return(reached)"""
 def min_spanning(matrix,starting_node=0):
     #initialise adj matrix
     adj_matrix=[[0 for count in range (num_cities)]for count in range (num_cities)]
