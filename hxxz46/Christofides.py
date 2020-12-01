@@ -273,11 +273,13 @@ added_note = ""
 ############
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
+"""
 def check_reached(reached,check_node):
     for i in range(0,len(reached)):
         if check_node==reached[i][0]:
             return False
     return True
+
 def min_spanning(matrix,starting_node=0):
     #node id, parent
     reached=[[0,-1]]
@@ -292,20 +294,39 @@ def min_spanning(matrix,starting_node=0):
                     min_cost=curr_cost
                     min_vert=j
                     parent=current_node
-        print(min_cost)
         reached.append([min_vert,parent[0]])
-    return(reached)
+    return(reached)"""
+def min_spanning(matrix,starting_node=0):
+    #initialise adj matrix
+    adj_matrix=[[0 for count in range (num_cities)]for count in range (num_cities)]
+    #node id, parent
+    reached=[starting_node]
+    while len(reached)<num_cities:
+        min_cost=100000
+        min_vert=-1
+        for i in range (0,len(reached)):
+            current_node=reached[i]
+            for j in range (0,len(dist_matrix[current_node])):
+                curr_cost=dist_matrix[current_node][j]
+                if curr_cost<min_cost and j not in reached:
+                    min_cost=curr_cost
+                    min_vert=j
+                    parent=current_node
+        reached.append(min_vert)
+        adj_matrix[min_vert][parent]=1
+    return(adj_matrix)
 def find_odd_deg(mst):
     print("mst")
 def find_matching(odd_deg_vert):
     print("x")
 
 def christofides(matrix,starting_node=0):
-    print(find_odd_deg(dist_matrix))
+    adj_matrix=min_spanning(dist_matrix)
 
 
 
-print(min_spanning(dist_matrix))
+
+print(christofides(dist_matrix))
 tour=[]
 
 
