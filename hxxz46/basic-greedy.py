@@ -302,6 +302,7 @@ def search(dist_matrix):
         for i in range (0,len(dist_matrix[current_node[0]])):
             new_node_dist=dist_matrix[current_node[0]][i]
             new_node=[i,current_node[0],new_node_dist]
+            #change new node dist to check if new node != current node id
             if (new_node_dist!=0) and in_closed(tour, new_node):
                 discovered_nodes.append(new_node)
     return tour
