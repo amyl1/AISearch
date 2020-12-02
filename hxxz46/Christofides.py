@@ -293,25 +293,48 @@ def min_spanning(matrix,starting_node=0):
         reached.append(min_vert)
         adj_matrix[min_vert][parent]=1
     return(adj_matrix)
+
 def find_odd_deg(adj_matrix):
     odd_deg=[]
     for i in range (len(adj_matrix)):
         count=0
         for j in range(len(adj_matrix[i])):
-            if adj_matrix[i][j]==1:
+            if adj_matrix[j][i]==1:
                 count+=1
         if count%2==1:
             odd_deg.append(i)
     return odd_deg
 
-def find_matching(odd_deg_vert):
-    odd_deg=[]
+#greedily find the best matching
+def find_matching(odd_deg_vert,dist_matrix):
+    x=len(odd_deg_vert)
+    result=[]
+    while len(result)<x/2:
+        y=len(odd_deg_vert)
+        pair=[]
+        for i in range(y):
+            min_cost=10000
+            for j in range(len(odd_deg_vert)):
+                if i!=j:
+                    curr=dist_matrix[odd_deg_vert[i]][odd_deg_vert[j]]
+                    if curr<min_cost:
+                        min_cost=curr
+                        pair=[odd_deg_vert[i],odd_deg_vert[j]]
+        odd_deg_vert.remove(pair[0])
+        odd_deg_vert.remove(pair[1])
+        result.append(pair)
+        print(result)
+        print(odd_deg_vert)
+        
+        
+    return result
 
 
 def christofides(matrix,starting_node=0):
     adj_matrix=min_spanning(dist_matrix)
     odd_deg_vert=find_odd_deg(adj_matrix)
-    return (odd_deg_vert)
+    matching=find_matching(odd_deg_vert,dist_matrix)
+    return (matching)
 
 
 
