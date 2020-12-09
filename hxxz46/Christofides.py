@@ -275,9 +275,7 @@ added_note = ""
 ############
 
 def min_spanning(matrix,starting_node=0):
-    #initialise adj matrix
     adj_matrix=[[0 for count in range (num_cities)]for count in range (num_cities)]
-    #node id, parent
     reached=[starting_node]
     while len(reached)<num_cities:
         min_cost=100000
@@ -327,12 +325,19 @@ def find_matching(odd_deg_vert,dist_matrix):
         result.append(pair)  
     return result
 
-
+def add_adj_matrix(adj_matrix,matching):
+    for i in range (len(matching)):
+        adj_matrix[matching[i][0]][matching[i][1]]=1
+        adj_matrix[matching[i][1]][matching[i][0]]=1
+    return(adj_matrix)
+def eulerian():
+    print ("X")
 def christofides(starting_node=0):
     adj_matrix=min_spanning(dist_matrix)
     odd_deg_vert=find_odd_deg(adj_matrix)
     matching=find_matching(odd_deg_vert,dist_matrix)
-    return (matching)
+    adj_matrix=add_adj_matrix(adj_matrix,matching)
+    
 
 
 
