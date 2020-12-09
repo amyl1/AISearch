@@ -274,9 +274,6 @@ added_note = ""
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
 
-
-#check 0s in distance matrix
-
 def in_closed(closed_list, check_node):
     for node in closed_list:
         if (check_node[0] == node):
@@ -292,18 +289,20 @@ def calc_tour_length(tour,n):
 
 def search(dist_matrix):
     tour=[]
-    #start from 0
     discovered_nodes = [[0,-1,0]]
     while len(tour)<num_cities:
         discovered_nodes.sort(key=lambda x:x[-1])
         current_node = discovered_nodes[0]
         tour.append(current_node[0])
+        print(discovered_nodes)
         discovered_nodes=[]
-        for i in range (0,len(dist_matrix[current_node[0]])):
-            new_node_dist=dist_matrix[current_node[0]][i]
-            new_node=[i,current_node[0],new_node_dist]
-            if (new_node_dist!=current_node[0]) and in_closed(tour, new_node):
-                discovered_nodes.append(new_node)
+        for c in range (0,len(tour)):
+            x=tour[c]
+            for i in range (0,len(dist_matrix[x])):
+                new_node_dist=dist_matrix[current_node[0]][i]
+                new_node=[i,current_node[0],new_node_dist]
+                if (new_node_dist!=current_node[0]) and in_closed(tour, new_node):
+                    discovered_nodes.append(new_node)
     return tour
 tour=search(dist_matrix)
 tour_length=calc_tour_length(tour,num_cities)
