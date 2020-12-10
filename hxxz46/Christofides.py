@@ -275,7 +275,7 @@ added_note = ""
 ############
 
 def min_spanning(matrix,starting_node=0):
-    adj_matrix=[[0 for count in range (num_cities)]for count in range (num_cities)]
+    adj=dict()
     reached=[starting_node]
     while len(reached)<num_cities:
         min_cost=100000
@@ -289,24 +289,22 @@ def min_spanning(matrix,starting_node=0):
                     min_vert=j
                     parent=current_node
         reached.append(min_vert)
-        adj_matrix[min_vert][parent]=1
-        adj_matrix[parent][min_vert]=1
-    return(adj_matrix)
-
-def find_odd_deg(adj_matrix):
+        if parent in adj:
+            adj[parent].append(min_vert)
+        else:
+            adj[parent]=[min_vert]
+    return(adj)
+#check this logic
+def find_odd_deg(adj):
     odd_deg=[]
-    for i in range (len(adj_matrix)):
-        count=0
-        for j in range(len(adj_matrix[i])):
-            if adj_matrix[j][i]==1:
-                count+=1
-        if count%2==1:
+    for i in range (num_cities):
+        if i not in adj:
             odd_deg.append(i)
     return odd_deg
 
 #greedily find the best matching
 #need to change if length odd_deg_vert is odd
-def find_matching(odd_deg_vert,dist_matrix):
+def find_matching(odd_deg_vert,dist_matrix,adj):
     x=len(odd_deg_vert)
     result=[]
     while len(result)<x/2:
@@ -323,24 +321,43 @@ def find_matching(odd_deg_vert,dist_matrix):
         odd_deg_vert.remove(pair[0])
         odd_deg_vert.remove(pair[1])
         result.append(pair)  
-    return result
+    for x in range (len(result)):
+        adj[result[x][0]]=[result[x][1]]
 
-def add_adj_matrix(adj_matrix,matching):
-    for i in range (len(matching)):
-        adj_matrix[matching[i][0]][matching[i][1]]=1
-        adj_matrix[matching[i][1]][matching[i][0]]=1
-    return(adj_matrix)
-def eulerian():
-    print ("X")
+def eulerian(adj):
+    # adj represents the adjacency list of the directed graph 
+    # num_edges represents the number of edges emerging from a vertex 
+    num_edges = dict() 
+    for i in range(num_cities):
+        if i in adj:
+            num_edges[i] = len(adj[i])
+        else:
+            num_edges[i]=0
+    if len(adj) == 0: 
+        return
+    curr_path = [] 
+    circuit = [] 
+    curr_path.append(0) 
+    curr_v = 0 
+    while len(curr_path):
+        if num_edges[curr_v]: 
+            curr_path.append(curr_v) 
+            next_v = adj[curr_v][-1]  
+            num_edges[curr_v] -= 1
+            adj[curr_v].pop() 
+            curr_v = next_v 
+        else: 
+            circuit.append(curr_v) 
+            curr_v = curr_path[-1] 
+            curr_path.pop()
+    return(circuit[::-1])
+
 def christofides(starting_node=0):
-    adj_matrix=min_spanning(dist_matrix)
-    odd_deg_vert=find_odd_deg(adj_matrix)
-    matching=find_matching(odd_deg_vert,dist_matrix)
-    adj_matrix=add_adj_matrix(adj_matrix,matching)
-    
-
-
-
+    adj=min_spanning(dist_matrix)
+    odd_deg_vert=find_odd_deg(adj)
+    matching=find_matching(odd_deg_vert,dist_matrix,adj)
+    tour=eulerian(adj)
+    return(tour)
 
 print(christofides(dist_matrix))
 tour=[]
