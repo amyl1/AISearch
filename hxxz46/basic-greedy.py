@@ -294,7 +294,6 @@ def search(dist_matrix):
         discovered_nodes.sort(key=lambda x:x[-1])
         current_node = discovered_nodes[0]
         tour.append(current_node[0])
-        print(discovered_nodes)
         discovered_nodes=[]
         for c in range (0,len(tour)):
             x=tour[c]
