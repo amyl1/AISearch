@@ -293,12 +293,16 @@ def min_spanning(matrix,starting_node=0):
             adj[parent].append(min_vert)
         else:
             adj[parent]=[min_vert]
+        if min_vert in adj:
+            adj[min_vert].append(parent)
+        else:
+            adj[min_vert]=[parent]
     return(adj)
 #check this logic
 def find_odd_deg(adj):
     odd_deg=[]
     for i in range (num_cities):
-        if i not in adj:
+        if len(adj[i])%2==1:
             odd_deg.append(i)
     return odd_deg
 
@@ -322,45 +326,57 @@ def find_matching(odd_deg_vert,dist_matrix,adj):
         odd_deg_vert.remove(pair[1])
         result.append(pair)  
     for x in range (len(result)):
-        adj[result[x][0]]=[result[x][1]]
+        if result[x][0] in adj:
+            adj[result[x][0]].append(result[x][1])
+        else:
+            adj[result[x][0]]=[result[x][1]]
+        if result[x][1] in adj:
+            adj[result[x][1]].append(result[x][0])
+        else:
+            adj[result[x][1]]=[result[x][0]]
 
 def eulerian(adj):
-    # adj represents the adjacency list of the directed graph 
-    # num_edges represents the number of edges emerging from a vertex 
-    num_edges = dict() 
-    for i in range(num_cities):
-        if i in adj:
-            num_edges[i] = len(adj[i])
-        else:
-            num_edges[i]=0
     if len(adj) == 0: 
         return
     curr_path = [] 
     circuit = [] 
     curr_path.append(0) 
-    curr_v = 0 
+    curr_vert = 0 
     while len(curr_path):
-        if num_edges[curr_v]: 
-            curr_path.append(curr_v) 
-            next_v = adj[curr_v][-1]  
-            num_edges[curr_v] -= 1
-            adj[curr_v].pop() 
-            curr_v = next_v 
+        if len(adj[curr_vert])>0:
+            curr_path.append(curr_vert) 
+            min_cost=100000
+            for i in range (0,len(adj[curr_vert])):
+                check_v = adj[curr_vert][i]
+                curr_cost=dist_matrix[curr_vert][check_v]
+                if curr_cost<min_cost:
+                    curr_cost=min_cost
+                    next_v=check_v
+            adj[curr_vert].remove(next_v)
+            adj[next_v].remove(curr_vert)
+            curr_vert = next_v 
         else: 
-            circuit.append(curr_v) 
-            curr_v = curr_path[-1] 
+            circuit.append(curr_vert) 
+            curr_vert = curr_path[-1] 
             curr_path.pop()
     return(circuit[::-1])
 
-def christofides(starting_node=0):
-    adj=min_spanning(dist_matrix)
-    odd_deg_vert=find_odd_deg(adj)
-    matching=find_matching(odd_deg_vert,dist_matrix,adj)
-    tour=eulerian(adj)
-    return(tour)
+def calc_tour_length(tour,n):
+    tour_length = 0
+    for i in range(0, n - 1):
+        tour_length = tour_length + dist_matrix[tour[i]][tour[i + 1]]
+    tour_length = tour_length + dist_matrix[tour[n - 1]][tour[0]]
+    return tour_length
 
-print(christofides(dist_matrix))
-tour=[]
+
+adj=min_spanning(dist_matrix)
+odd_deg_vert=find_odd_deg(adj)
+find_matching(odd_deg_vert,dist_matrix,adj)
+tour=eulerian(adj)
+print(tour)
+tour = list(dict.fromkeys(tour).keys())
+tour_length=calc_tour_length(tour,num_cities)
+print(tour)
 
 
 
