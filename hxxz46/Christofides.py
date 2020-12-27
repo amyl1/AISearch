@@ -273,68 +273,87 @@ added_note = ""
 ############
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
+# Find set of vertex i 
+def find(i): 
+    while parent[i] != i: 
+        i = parent[i] 
+    return i 
 
-def min_spanning(matrix,starting_node=0):
-    adj=dict()
-    reached=[starting_node]
-    while len(reached)<num_cities:
-        min_cost=100000
-        min_vert=-1
-        for i in range (0,len(reached)):
-            current_node=reached[i]
-            for j in range (0,len(dist_matrix[current_node])):
-                curr_cost=dist_matrix[current_node][j]
-                if curr_cost<min_cost and j not in reached:
-                    min_cost=curr_cost
-                    min_vert=j
-                    parent=current_node
-        reached.append(min_vert)
-        if parent in adj:
-            adj[parent].append(min_vert)
+#returns false if i and j are already in same set.  
+def union(i, j): 
+    a = find(i) 
+    b = find(j) 
+    parent[a] = b 
+  
+# Finds MST using Kruskal's algorithm  
+def kruskalMST(cost):
+    adj=dict() 
+    mincost = 0
+    for i in range(num_cities): 
+        parent[i] = i 
+    edge_count = 0
+    while edge_count < num_cities - 1: 
+        min = INF 
+        a = -1
+        b = -1
+        for i in range(num_cities): 
+            for j in range(num_cities): 
+                if find(i) != find(j) and cost[i][j] < min: 
+                    min = cost[i][j] 
+                    a = i 
+                    b = j 
+        union(a, b)
+        edge_count += 1
+        mincost += min
+        if a not in adj:
+            adj[a]=[b]
         else:
-            adj[parent]=[min_vert]
-        if min_vert in adj:
-            adj[min_vert].append(parent)
+            adj[a].append(b)
+        if b not in adj:
+            adj[b]=[a]
         else:
-            adj[min_vert]=[parent]
-    return(adj)
-#check this logic
+            adj[b].append(a)
+    return adj
+
 def find_odd_deg(adj):
     odd_deg=[]
     for i in range (num_cities):
         if len(adj[i])%2==1:
             odd_deg.append(i)
-    return odd_deg
+    return odd_deg 
 
-#greedily find the best matching
-#need to change if length odd_deg_vert is odd
-def find_matching(odd_deg_vert,dist_matrix,adj):
+def find_matching(odd_deg_vert,dist_matrix):
     x=len(odd_deg_vert)
     result=[]
-    while len(result)<x/2:
-        y=len(odd_deg_vert)
-        pair=[]
-        for i in range(y):
+    while len(result)<(x):
+        for vert1 in odd_deg_vert:
             min_cost=10000
-            for j in range(len(odd_deg_vert)):
-                if i!=j:
-                    curr=dist_matrix[odd_deg_vert[i]][odd_deg_vert[j]]
-                    if curr<min_cost:
-                        min_cost=curr
-                        pair=[odd_deg_vert[i],odd_deg_vert[j]]
-        odd_deg_vert.remove(pair[0])
-        odd_deg_vert.remove(pair[1])
-        result.append(pair)  
-    for x in range (len(result)):
-        if result[x][0] in adj:
-            adj[result[x][0]].append(result[x][1])
-        else:
-            adj[result[x][0]]=[result[x][1]]
-        if result[x][1] in adj:
-            adj[result[x][1]].append(result[x][0])
-        else:
-            adj[result[x][1]]=[result[x][0]]
+            for vert2 in odd_deg_vert:
+                if vert1!=vert2:
+                    if vert1 not in result and vert2 not in result and vert1 not in adj[vert2]:
+                        curr=dist_matrix[vert1][vert2]
+                        if curr<min_cost:
+                            min_cost=curr
+                            min1=vert1
+                            min2=vert2
+        result.append(min1)
+        result.append(min2)
+        odd_deg_vert.remove(min1)
+        odd_deg_vert.remove(min2)
+    return result
 
+def update_adj(adj,matching):
+    while len(matching)>0:
+        if matching[0] in adj:
+            adj[matching[0]].append(matching[1])
+        else:
+            adj[matching[0]]=matching[1]
+        if matching[1] in adj:
+            adj[matching[1]].append(matching[0])
+        else:
+            adj[matching[1]]=matching[0]
+        matching=matching[2:]
+    return adj
 def eulerian(adj):
     if len(adj) == 0: 
         return
@@ -360,7 +379,7 @@ def eulerian(adj):
             curr_vert = curr_path[-1] 
             curr_path.pop()
     return(circuit[::-1])
-
+ 
 def calc_tour_length(tour,n):
     tour_length = 0
     for i in range(0, n - 1):
@@ -369,24 +388,19 @@ def calc_tour_length(tour,n):
     return tour_length
 
 
-adj=min_spanning(dist_matrix)
+parent = [i for i in range(num_cities)] 
+INF = float('inf') 
+  
+adj=kruskalMST(dist_matrix)
 odd_deg_vert=find_odd_deg(adj)
-find_matching(odd_deg_vert,dist_matrix,adj)
+
+result=find_matching(odd_deg_vert,dist_matrix)
+adj=update_adj(adj,result)
+print(adj)
 tour=eulerian(adj)
-print(tour)
+
 tour = list(dict.fromkeys(tour).keys())
 tour_length=calc_tour_length(tour,num_cities)
-print(tour)
-
-
-
-
-
-
-
-
-
-
 
 
 ############
