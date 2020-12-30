@@ -354,15 +354,16 @@ def update_adj(adj,matching):
             adj[matching[1]]=matching[0]
         matching=matching[2:]
     return adj
+
 def eulerian(adj):
     if len(adj) == 0: 
         return
     curr_path = [] 
     circuit = [] 
     curr_path.append(0) 
-    curr_vert = 0 
+    curr_vert = 0
     while len(curr_path):
-        if len(adj[curr_vert])>0:
+        if len(adj[curr_vert]):
             curr_path.append(curr_vert) 
             min_cost=100000
             for i in range (0,len(adj[curr_vert])):
@@ -379,7 +380,7 @@ def eulerian(adj):
             curr_vert = curr_path[-1] 
             curr_path.pop()
     return(circuit[::-1])
- 
+
 def calc_tour_length(tour,n):
     tour_length = 0
     for i in range(0, n - 1):
@@ -393,15 +394,11 @@ INF = float('inf')
   
 adj=kruskalMST(dist_matrix)
 odd_deg_vert=find_odd_deg(adj)
-
 result=find_matching(odd_deg_vert,dist_matrix)
 adj=update_adj(adj,result)
-print(adj)
 tour=eulerian(adj)
-
 tour = list(dict.fromkeys(tour).keys())
 tour_length=calc_tour_length(tour,num_cities)
-
 
 ############
 ############ YOUR CODE SHOULD NOW BE COMPLETE AND WHEN EXECUTION OF THIS PROGRAM 'skeleton.py'
