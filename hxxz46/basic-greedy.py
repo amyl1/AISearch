@@ -289,7 +289,7 @@ def calc_tour_length(tour,n):
 
 def search(dist_matrix):
     tour=[]
-    discovered_nodes = [[0,-1,0]]
+    discovered_nodes = [[0,0]]
     while len(tour)<num_cities:
         discovered_nodes.sort(key=lambda x:x[-1])
         current_node = discovered_nodes[0]
@@ -299,7 +299,7 @@ def search(dist_matrix):
             x=tour[c]
             for i in range (0,len(dist_matrix[x])):
                 new_node_dist=dist_matrix[current_node[0]][i]
-                new_node=[i,current_node[0],new_node_dist]
+                new_node=[i,new_node_dist]
                 if (new_node_dist!=current_node[0]) and in_closed(tour, new_node):
                     discovered_nodes.append(new_node)
     return tour
