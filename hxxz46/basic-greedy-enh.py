@@ -280,25 +280,32 @@ def in_closed(closed_list, check_node):
             return False
     return True
 
+def calc_cost(tour,n):
+    tour_length = 0
+    for i in range(0, n - 1):
+        tour_length = tour_length + dist_matrix[tour[i]][tour[i + 1]]
+    return tour_length
+
 def calc_tour_length(tour,n):
     tour_length = 0
     for i in range(0, n - 1):
         tour_length = tour_length + dist_matrix[tour[i]][tour[i + 1]]
     tour_length = tour_length + dist_matrix[tour[n - 1]][tour[0]]
+    print(dist_matrix[tour[n - 1]][tour[0]])
     return tour_length
 
 def insert_into(dist_matrix, tour, node):
     min_cost=100000000
     pos=0
-    bestTour=tour.insert(0,node)
-    for i in range (0,len(tour)):
-        posTour=tour.copy()
-        cost=calc_tour_length(posTour,len(posTour))
-        if cost<min_cost:
+    for i in range (0,len(tour)+1):
+        possTour=tour.copy()
+        possTour.insert(i,node)
+        cost=calc_cost(possTour,len(possTour))
+        if cost<=min_cost:
             min_cost=cost
-            bestTour=posTour.copy()
-    print(bestTour)
-    return bestTour
+            pos=i
+    tour.insert(pos,node)
+    return tour
 
 def find_start(dist_matrix):
     min_cost=1000000
