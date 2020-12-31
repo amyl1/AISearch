@@ -280,12 +280,6 @@ def in_closed(closed_list, check_node):
             return False
     return True
 
-def calc_cost(tour,n):
-    tour_length = 0
-    for i in range(0, n - 1):
-        tour_length = tour_length + dist_matrix[tour[i]][tour[i + 1]]
-    return tour_length
-
 def calc_tour_length(tour,n):
     tour_length = 0
     for i in range(0, n - 1):
@@ -294,28 +288,37 @@ def calc_tour_length(tour,n):
     return tour_length
 
 def insert_into(dist_matrix, tour, node):
-    min_cost=100000
+    min_cost=100000000
     pos=0
+    bestTour=tour.insert(0,node)
     for i in range (0,len(tour)):
-        print(i)
-        possTour=tour.copy()
-        possTour.insert(i,node)
-        cost=calc_cost(possTour,len(possTour))
-        print(cost)
+        posTour=tour.copy()
+        cost=calc_tour_length(posTour,len(posTour))
         if cost<min_cost:
             min_cost=cost
-            pos=i
-    tour.insert(pos,node)
-    return tour
+            bestTour=posTour.copy()
+    print(bestTour)
+    return bestTour
+
+def find_start(dist_matrix):
+    min_cost=1000000
+    for i in range (len(dist_matrix)):
+        for j in range (len(dist_matrix[i])):
+            cost=dist_matrix[i][j]
+            if cost<min_cost:
+                min_cost=cost
+                node=i
+    return node
 
 def search(dist_matrix):
     tour=[]
-    discovered_nodes = [[0,0]]
+    start_node=find_start(dist_matrix)
+    start_node=0
+    discovered_nodes = [[start_node,0]]
     while len(tour)<num_cities:
         discovered_nodes.sort(key=lambda x:x[-1])
         current_node = discovered_nodes[0]
         tour=insert_into(dist_matrix,tour,current_node[0])
-        print(tour)
         discovered_nodes=[]
         for c in range (0,len(tour)):
             x=tour[c]
@@ -327,6 +330,7 @@ def search(dist_matrix):
     return tour
 tour=search(dist_matrix)
 tour_length=calc_tour_length(tour,num_cities)
+
 
 
 ############
