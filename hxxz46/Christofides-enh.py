@@ -354,26 +354,6 @@ def update_adj(adj,matching):
             adj[matching[1]]=matching[0]
         matching=matching[2:]
     return adj
-#highest cost
-def find_start_highest(dist_matrix):
-    max_cost=0
-    for i in range (len(dist_matrix)):
-        for j in range (len(dist_matrix[i])):
-            cost=dist_matrix[i][j]
-            if cost>max_cost:
-                max_cost=cost
-                node=i
-    return node
-
-def find_start_adj(adj):
-    max_cost=0
-    for vert in adj:
-        for j in range (len(adj[vert])):
-            cost=dist_matrix[vert][adj[vert][j]]
-            if cost>max_cost:
-                max_cost=cost
-                node=vert
-    return node
 
 def cost_diff(dist_matrix, n1, n2, n3, n4):
     return dist_matrix[n1][n3] + dist_matrix[n2][n4] - dist_matrix[n1][n2] - dist_matrix[n3][n4]
@@ -391,24 +371,14 @@ def two_opt(route, dist_matrix):
                     better = True
         route = best
     return best
-#median
-def find_start(dist_matrix):
-    costs=[]
-    for i in range (len(dist_matrix)):
-        for j in range (len(dist_matrix[i])):
-            cost=dist_matrix[i][j]
-            costs.append([i,cost])
-    costs.sort(key=lambda x:x[-1])
-    node=costs[len(costs)//2]
-    return node[0]
 
 def eulerian(adj):
     if len(adj) == 0: 
         return
     curr_path = [] 
     circuit = [] 
-    curr_path.append(find_start(adj)) 
-    curr_vert = find_start(adj)
+    curr_path.append(0) 
+    curr_vert = 0
     while len(curr_path):
         if len(adj[curr_vert]):
             curr_path.append(curr_vert) 
