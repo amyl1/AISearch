@@ -249,7 +249,7 @@ my_last_name = "Laws"
 ############ 'alg_codes_and_tariffs.txt' (READ THIS FILE TO SEE THE CODES).
 ############
 
-algorithm_code = "CA"
+algorithm_code = "BH"
 
 ############
 ############ DO NOT TOUCH OR ALTER THE CODE BELOW! YOU HAVE BEEN WARNED!
@@ -273,113 +273,18 @@ added_note = ""
 ############
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
-# Find set of vertex i 
-def find(i): 
-    while parent[i] != i: 
-        i = parent[i] 
-    return i 
 
-#returns false if i and j are already in same set.  
-def union(i, j): 
-    a = find(i) 
-    b = find(j) 
-    parent[a] = b 
-  
-# Finds MST using Kruskal's algorithm  
-def kruskalMST(cost):
-    adj=dict() 
-    mincost = 0
-    for i in range(num_cities): 
-        parent[i] = i 
-    edge_count = 0
-    while edge_count < num_cities - 1: 
-        min = INF 
-        a = -1
-        b = -1
-        for i in range(num_cities): 
-            for j in range(num_cities): 
-                if find(i) != find(j) and cost[i][j] < min: 
-                    min = cost[i][j] 
-                    a = i 
-                    b = j 
-        union(a, b)
-        edge_count += 1
-        mincost += min
-        if a not in adj:
-            adj[a]=[b]
-        else:
-            adj[a].append(b)
-        if b not in adj:
-            adj[b]=[a]
-        else:
-            adj[b].append(a)
-    return adj
+def in_closed(closed_list, check_node):
+    for node in closed_list:
+        if (check_node[0] == node):
+            return False
+    return True
 
-def find_odd_deg(adj):
-    odd_deg=[]
-    for i in range (num_cities):
-        if len(adj[i])%2==1:
-            odd_deg.append(i)
-    return odd_deg 
-
-def find_matching(odd_deg_vert,dist_matrix):
-    x=len(odd_deg_vert)
-    result=[]
-    while len(result)<(x):
-        for vert1 in odd_deg_vert:
-            min_cost=10000
-            for vert2 in odd_deg_vert:
-                if vert1!=vert2:
-                    if vert1 not in result and vert2 not in result and vert1 not in adj[vert2]:
-                        curr=dist_matrix[vert1][vert2]
-                        if curr<min_cost:
-                            min_cost=curr
-                            min1=vert1
-                            min2=vert2
-        result.append(min1)
-        result.append(min2)
-        odd_deg_vert.remove(min1)
-        odd_deg_vert.remove(min2)
-    return result
-
-def update_adj(adj,matching):
-    while len(matching)>0:
-        if matching[0] in adj:
-            adj[matching[0]].append(matching[1])
-        else:
-            adj[matching[0]]=matching[1]
-        if matching[1] in adj:
-            adj[matching[1]].append(matching[0])
-        else:
-            adj[matching[1]]=matching[0]
-        matching=matching[2:]
-    return adj
-
-def eulerian(adj):
-    if len(adj) == 0: 
-        return
-    curr_path = [] 
-    circuit = [] 
-    curr_path.append(0) 
-    curr_vert = 0
-    while len(curr_path):
-        if len(adj[curr_vert]):
-            curr_path.append(curr_vert) 
-            min_cost=100000
-            for i in range (0,len(adj[curr_vert])):
-                check_v = adj[curr_vert][i]
-                curr_cost=dist_matrix[curr_vert][check_v]
-                if curr_cost<min_cost:
-                    curr_cost=min_cost
-                    next_v=check_v
-            adj[curr_vert].remove(next_v)
-            adj[next_v].remove(curr_vert)
-            curr_vert = next_v 
-        else: 
-            circuit.append(curr_vert) 
-            curr_vert = curr_path[-1] 
-            curr_path.pop()
-    return(circuit[::-1])
+def calc_cost(tour,n):
+    tour_length = 0
+    for i in range(0, n - 1):
+        tour_length = tour_length + dist_matrix[tour[i]][tour[i + 1]]
+    return tour_length
 
 def calc_tour_length(tour,n):
     tour_length = 0
@@ -388,17 +293,68 @@ def calc_tour_length(tour,n):
     tour_length = tour_length + dist_matrix[tour[n - 1]][tour[0]]
     return tour_length
 
+def insert_into(dist_matrix, tour, node):
+    min_cost=100000000
+    pos=0
+    for i in range (0,len(tour)+1):
+        possTour=tour.copy()
+        possTour.insert(i,node)
+        cost=calc_cost(possTour,len(possTour))
+        if cost<=min_cost:
+            min_cost=cost
+            pos=i
+    tour.insert(pos,node)
+    return tour
 
-parent = [i for i in range(num_cities)] 
-INF = float('inf') 
-  
-adj=kruskalMST(dist_matrix)
-odd_deg_vert=find_odd_deg(adj)
-result=find_matching(odd_deg_vert,dist_matrix)
-adj=update_adj(adj,result)
-tour=eulerian(adj)
-tour = list(dict.fromkeys(tour).keys())
+def finish_tour(tour):
+    for i in range (0,num_cities):
+        if i not in tour:
+            tour.append(i)
+    return tour
+
+def search(dist_matrix):
+    start = time.time()
+    tour=[]
+    discovered_nodes = [[0,0]]
+    while len(tour)<num_cities:
+        if time.time()>start+53:
+            tour=finish_tour(tour)
+            return tour
+        discovered_nodes.sort(key=lambda x:x[-1])
+        current_node = discovered_nodes[0]
+        tour=insert_into(dist_matrix,tour,current_node[0])
+        discovered_nodes=[]
+        for c in range (0,len(tour)):
+            x=tour[c]
+            for i in range (0,len(dist_matrix[x])):
+                new_node_dist=dist_matrix[current_node[0]][i]
+                new_node=[i,new_node_dist]
+                if (new_node_dist!=current_node[0]) and in_closed(tour, new_node):
+                    discovered_nodes.append(new_node)
+    return tour
+
+def cost_diff(dist_matrix, n1, n2, n3, n4):
+    return dist_matrix[n1][n3] + dist_matrix[n2][n4] - dist_matrix[n1][n2] - dist_matrix[n3][n4]
+
+def two_opt(route, dist_matrix):
+    best = route
+    better = True
+    while better:
+        better = False
+        for i in range(1, len(route) - 2):
+            for j in range(i + 1, len(route)):
+                if j - i == 1: continue
+                if cost_diff(dist_matrix, best[i - 1], best[i], best[j - 1], best[j]) < 0:
+                    best[i:j] = best[j - 1:i - 1:-1]
+                    better = True
+        route = best
+    return best
+
+tour=search(dist_matrix)
+tour=two_opt(tour,dist_matrix)
 tour_length=calc_tour_length(tour,num_cities)
+
+
 
 ############
 ############ YOUR CODE SHOULD NOW BE COMPLETE AND WHEN EXECUTION OF THIS PROGRAM 'skeleton.py'
@@ -469,7 +425,6 @@ for i in range(1,num_cities):
 f.write(",\nNOTE = " + added_note)
 f.close()
 print("I have successfully written your tour to the tour file:\n   " + output_file_name + ".")
-    
     
 
 

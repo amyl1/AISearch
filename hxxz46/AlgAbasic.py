@@ -280,39 +280,29 @@ def in_closed(closed_list, check_node):
             return False
     return True
 
-def calc_cost(tour,n):
-    tour_length = 0
-    for i in range(0, n - 1):
-        tour_length = tour_length + dist_matrix[tour[i]][tour[i + 1]]
-    return tour_length
-
 def calc_tour_length(tour,n):
     tour_length = 0
     for i in range(0, n - 1):
         tour_length = tour_length + dist_matrix[tour[i]][tour[i + 1]]
     tour_length = tour_length + dist_matrix[tour[n - 1]][tour[0]]
     return tour_length
-
-def insert_into(dist_matrix, tour, node):
-    min_cost=100000000
-    pos=0
-    for i in range (0,len(tour)+1):
-        possTour=tour.copy()
-        possTour.insert(i,node)
-        cost=calc_cost(possTour,len(possTour))
-        if cost<=min_cost:
-            min_cost=cost
-            pos=i
-    tour.insert(pos,node)
+def finish_tour(tour):
+    for i in range (0,num_cities):
+        if i not in tour:
+            tour.append(i)
     return tour
 
 def search(dist_matrix):
+    start = time.time()
     tour=[]
     discovered_nodes = [[0,0]]
     while len(tour)<num_cities:
+        if time.time()>start+53:
+            tour=finish_tour(tour)
+            return tour
         discovered_nodes.sort(key=lambda x:x[-1])
         current_node = discovered_nodes[0]
-        tour=insert_into(dist_matrix,tour,current_node[0])
+        tour.append(current_node[0])
         discovered_nodes=[]
         for c in range (0,len(tour)):
             x=tour[c]
@@ -322,28 +312,8 @@ def search(dist_matrix):
                 if (new_node_dist!=current_node[0]) and in_closed(tour, new_node):
                     discovered_nodes.append(new_node)
     return tour
-
-def cost_diff(dist_matrix, n1, n2, n3, n4):
-    return dist_matrix[n1][n3] + dist_matrix[n2][n4] - dist_matrix[n1][n2] - dist_matrix[n3][n4]
-
-def two_opt(route, dist_matrix):
-    best = route
-    better = True
-    while better:
-        better = False
-        for i in range(1, len(route) - 2):
-            for j in range(i + 1, len(route)):
-                if j - i == 1: continue
-                if cost_diff(dist_matrix, best[i - 1], best[i], best[j - 1], best[j]) < 0:
-                    best[i:j] = best[j - 1:i - 1:-1]
-                    better = True
-        route = best
-    return best
-
 tour=search(dist_matrix)
-tour=two_opt(tour,dist_matrix)
 tour_length=calc_tour_length(tour,num_cities)
-
 
 
 ############
